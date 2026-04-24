@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, FolderKanban, Wallet, HardHat, Camera, Settings } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Wallet, HardHat, Package, Settings } from 'lucide-react'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/projects', label: 'Chantiers', icon: FolderKanban },
   { href: '/budget', label: 'Budget', icon: Wallet },
-  { href: '/labor', label: 'Main-d\'œuvre', icon: HardHat },
+  { href: '/labor', label: 'MO', icon: HardHat },
+  { href: '/materials', label: 'Matériaux', icon: Package },
   { href: '/settings', label: 'Paramètres', icon: Settings },
 ]
 
