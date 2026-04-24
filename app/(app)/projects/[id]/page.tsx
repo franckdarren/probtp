@@ -3,7 +3,7 @@ import { projects } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Camera, Pencil } from 'lucide-react'
+import { ArrowLeft, Camera, FileDown, FileSpreadsheet, Pencil } from 'lucide-react'
 import { updateProject, deleteProject } from '../actions'
 
 const STATUSES = ['planifié', 'en cours', 'en pause', 'terminé', 'annulé'] as const
@@ -33,6 +33,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     with: {
       budgetItems: true,
       laborEntries: { with: { trade: true } },
+      materialEntries: { with: { material: true } },
       images: true,
     },
   })
@@ -42,7 +43,8 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const budgetAdjusted = parseFloat(project.initialBudget) + parseFloat(project.adjustment)
   const expensesBudget = project.budgetItems.reduce((s, b) => s + parseFloat(b.amount), 0)
   const expensesLabor = project.laborEntries.reduce((s, l) => s + parseFloat(l.cost), 0)
-  const actualExpenses = expensesBudget + expensesLabor
+  const expensesMaterials = project.materialEntries.reduce((s, m) => s + parseFloat(m.cost), 0)
+  const actualExpenses = expensesBudget + expensesLabor + expensesMaterials
   const difference = budgetAdjusted - actualExpenses
   const consumptionRate = budgetAdjusted > 0 ? actualExpenses / budgetAdjusted : 0
 
@@ -59,7 +61,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       </div>
 
       {/* Budget summary */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-3 gap-3 mb-3">
         <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm text-center">
           <p className="text-xs text-gray-500">Budget</p>
           <p className="text-sm font-bold text-gray-900 mt-0.5">{formatFcfa(budgetAdjusted)}</p>
@@ -75,6 +77,68 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             {difference >= 0 ? '+' : ''}{formatFcfa(difference)}
           </p>
         </div>
+      </div>
+
+      {/* Barre de consommation */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-6">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-xs font-medium text-gray-600">Consommation budgétaire</span>
+          <span className={`text-xs font-bold ${consumptionRate >= 1 ? 'text-red-600' : consumptionRate >= 0.8 ? 'text-orange-500' : 'text-emerald-600'}`}>
+            {Math.round(consumptionRate * 100)}%
+          </span>
+        </div>
+        <div className="h-3 bg-gray-100 rounded-full overflow-hidden mb-4">
+          <div
+            className={`h-full rounded-full transition-all ${consumptionRate >= 1 ? 'bg-red-500' : consumptionRate >= 0.8 ? 'bg-orange-400' : 'bg-emerald-500'}`}
+            style={{ width: `${Math.min(consumptionRate * 100, 100)}%` }}
+          />
+        </div>
+
+        {/* Ventilation dépenses */}
+        {actualExpenses > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-gray-500 mb-1">Ventilation des dépenses</p>
+            {expensesBudget > 0 && (
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-purple-500 shrink-0" />
+                <span className="text-xs text-gray-600 w-32 shrink-0">Dépenses chantier</span>
+                <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-purple-500 rounded-full"
+                    style={{ width: `${Math.round((expensesBudget / actualExpenses) * 100)}%` }}
+                  />
+                </div>
+                <span className="text-xs text-gray-500 w-20 text-right shrink-0">{formatFcfa(expensesBudget)}</span>
+              </div>
+            )}
+            {expensesLabor > 0 && (
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0" />
+                <span className="text-xs text-gray-600 w-32 shrink-0">Main-d&apos;œuvre</span>
+                <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-blue-500 rounded-full"
+                    style={{ width: `${Math.round((expensesLabor / actualExpenses) * 100)}%` }}
+                  />
+                </div>
+                <span className="text-xs text-gray-500 w-20 text-right shrink-0">{formatFcfa(expensesLabor)}</span>
+              </div>
+            )}
+            {expensesMaterials > 0 && (
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0" />
+                <span className="text-xs text-gray-600 w-32 shrink-0">Matériaux</span>
+                <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-amber-500 rounded-full"
+                    style={{ width: `${Math.round((expensesMaterials / actualExpenses) * 100)}%` }}
+                  />
+                </div>
+                <span className="text-xs text-gray-500 w-20 text-right shrink-0">{formatFcfa(expensesMaterials)}</span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Edit form */}
@@ -155,6 +219,22 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             Enregistrer
           </button>
         </form>
+      </div>
+
+      {/* Export */}
+      <div className="flex gap-3 mb-3">
+        <a
+          href={`/projects/${id}/export?format=pdf`}
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <FileDown size={16} /> PDF
+        </a>
+        <a
+          href={`/projects/${id}/export?format=excel`}
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <FileSpreadsheet size={16} /> Excel
+        </a>
       </div>
 
       {/* Actions */}

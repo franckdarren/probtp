@@ -265,9 +265,9 @@ cost = daysWorked * dailyRate
 - [X] Module Paramètres
 
 ### V2 — Priorité 1 (valeur métier immédiate)
-- [ ] Graphiques & analytiques (courbes budget vs dépenses par chantier)
+- [X] Graphiques & analytiques (courbes budget vs dépenses par chantier)
 - [ ] Gestion des matériaux (saisie achats, coût par chantier)
-- [ ] Export PDF/Excel (rapport chantier complet)
+- [X] Export PDF/Excel (rapport chantier complet)
 
 ### V2 — Priorité 2 (collaboration & équipe)
 - [ ] Gestion multi-utilisateurs (invitation email, changement de rôle)

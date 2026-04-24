@@ -76,11 +76,32 @@ export const projectImages = pgTable('project_images', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
+export const materials = pgTable('materials', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: text('name').notNull(),
+  unit: text('unit').notNull(),
+  unitPrice: numeric('unit_price', { precision: 12, scale: 2 }).notNull(),
+  companyId: uuid('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+export const materialEntries = pgTable('material_entries', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  materialId: uuid('material_id').notNull().references(() => materials.id, { onDelete: 'restrict' }),
+  projectId: uuid('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
+  quantity: numeric('quantity', { precision: 10, scale: 2 }).notNull(),
+  unitPrice: numeric('unit_price', { precision: 12, scale: 2 }).notNull(),
+  cost: numeric('cost', { precision: 12, scale: 2 }).notNull(),
+  date: timestamp('date').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
 // Relations
 export const companiesRelations = relations(companies, ({ many }) => ({
   users: many(users),
   projects: many(projects),
   trades: many(trades),
+  materials: many(materials),
 }))
 
 export const usersRelations = relations(users, ({ one }) => ({
@@ -96,6 +117,7 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
   company: one(companies, { fields: [projects.companyId], references: [companies.id] }),
   budgetItems: many(budgetItems),
   laborEntries: many(laborEntries),
+  materialEntries: many(materialEntries),
   images: many(projectImages),
 }))
 
@@ -110,4 +132,14 @@ export const laborEntriesRelations = relations(laborEntries, ({ one }) => ({
 
 export const projectImagesRelations = relations(projectImages, ({ one }) => ({
   project: one(projects, { fields: [projectImages.projectId], references: [projects.id] }),
+}))
+
+export const materialsRelations = relations(materials, ({ one, many }) => ({
+  company: one(companies, { fields: [materials.companyId], references: [companies.id] }),
+  entries: many(materialEntries),
+}))
+
+export const materialEntriesRelations = relations(materialEntries, ({ one }) => ({
+  material: one(materials, { fields: [materialEntries.materialId], references: [materials.id] }),
+  project: one(projects, { fields: [materialEntries.projectId], references: [projects.id] }),
 }))
