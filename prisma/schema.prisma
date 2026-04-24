@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  SAISIE
+  LECTEUR
+}
+
+model Company {
+  id               String   @id @default(uuid())
+  name             String
+  specialty        String?
+  city             String
+  country          String   @default("Gabon")
+  managerName      String
+  phone            String
+  currency         String   @default("FCFA")
+  skilledRate      Float
+  unskilledRate    Float
+  targetMargin     Float?
+  budgetThreshold  Float?
+  targetRevenue    Float?
+  targetProjects   Int?
+  avgProjectBudget Float?
+  createdAt        DateTime @default(now())
+  users            User[]
+  projects         Project[]
+  trades           Trade[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  authId    String   @unique  // Supabase Auth UID
+  email     String   @unique
+  name      String
+  role      Role     @default(LECTEUR)
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Trade {
+  id        String  @id @default(uuid())
+  name      String
+  category  String
+  dailyRate Float?
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+}
+
+model Project {
+  id          String         @id @default(uuid())
+  name        String
+  manager     String
+  budget      Float
+  status      String         @default("planifié")
+  progress    Float          @default(0)
+  startDate   DateTime
+  endDate     DateTime?
+  realEndDate DateTime?
+  city        String?
+  companyId   String
+  company     Company        @relation(fields: [companyId], references: [id])
+  createdAt   DateTime       @default(now())
+  budgetItems BudgetItem[]
+  laborEntries LaborEntry[]
+  images      ProjectImage[]
+}
+
+model BudgetItem {
+  id             String   @id @default(uuid())
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  category       String
+  initialBudget  Float
+  adjustment     Float    @default(0)
+  actualExpenses Float    @default(0)
+  createdAt      DateTime @default(now())
+}
+
+model LaborEntry {
+  id         String   @id @default(uuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  workerName String
+  trade      String
+  category   String
+  date       DateTime
+  daysWorked Float
+  dailyRate  Float
+  cost       Float
+  createdAt  DateTime @default(now())
+}
+
+model ProjectImage {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  url         String
+  description String?
+  stage       String?
+  createdAt   DateTime @default(now())
+}
