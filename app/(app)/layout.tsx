@@ -8,6 +8,7 @@ import { AppSidebar } from "@/components/shared/app-sidebar";
 import { Topbar } from "@/components/ui/topbar";
 import { NavigationProvider } from "@/lib/navigation-context";
 import { NavigationProgress } from "@/components/shared/navigation-progress";
+import { SwipeHandler } from "@/components/shared/swipe-handler";
 
 export default async function AppLayout({
   children,
@@ -38,10 +39,11 @@ export default async function AppLayout({
     <NavigationProvider>
       <NavigationProgress />
       <SidebarProvider>
+        <SwipeHandler />
         <AppSidebar companyName={companyName} userEmail={user.email ?? ""} />
         <SidebarInset>
           <Topbar/>
-          <main className="flex-1 p-6 min-h-screen ml-[260px]">
+          <main className="flex-1 p-4 md:p-6 min-h-screen lg:ml-[260px]">
             {children}
           </main>
         </SidebarInset>

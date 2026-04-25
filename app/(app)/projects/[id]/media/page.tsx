@@ -80,7 +80,7 @@ export default async function MediaPage({ params }: { params: Promise<{ id: stri
           <p className="text-sm text-gray-400">Aucune photo pour ce chantier</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {imagesWithUrls.map((img) => {
             const deleteAction = deleteImage.bind(null, img.id, img.url, id)
             return (

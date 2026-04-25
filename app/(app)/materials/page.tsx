@@ -88,7 +88,7 @@ export default async function MaterialsPage() {
           </CardHeader>
           <CardContent>
             <form action={createMaterialEntry} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="projectId">Chantier</Label>
                   <Select name="projectId" required>
@@ -118,7 +118,7 @@ export default async function MaterialsPage() {
                   </Select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="quantity">Quantité</Label>
                   <Input id="quantity" name="quantity" type="number" min="0.01" step="0.01" required placeholder="10" />

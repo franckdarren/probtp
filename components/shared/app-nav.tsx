@@ -50,7 +50,7 @@ export function Sidebar() {
   return (
     <aside className="hidden md:flex flex-col w-56 min-h-screen bg-background border-r px-3 py-6">
       <div className="mb-6 px-3">
-        <span className="text-lg font-bold tracking-tight">BTP Pilote</span>
+        <span className="text-lg font-bold tracking-tight">ProBTP</span>
         <p className="text-xs text-muted-foreground mt-0.5">Gestion de chantiers</p>
       </div>
       <Separator className="mb-4" />

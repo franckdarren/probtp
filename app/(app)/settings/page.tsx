@@ -56,7 +56,7 @@ export default async function SettingsPage() {
 
             <Separator />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="skilledRate">Taux qualifié (FCFA/j)</Label>
                 <Input
@@ -132,24 +132,26 @@ export default async function SettingsPage() {
             </>
           )}
           <div className="px-4 py-4 border-t">
-            <form action={createTrade} className="flex gap-2">
-              <Input
-                name="name"
-                type="text"
-                required
-                placeholder="Maçon, Ferrailleur..."
-                className="flex-1"
-              />
-              <Input
-                name="dailyRate"
-                type="number"
-                min="0"
-                step="1"
-                required
-                placeholder="FCFA/j"
-                className="w-28"
-              />
-              <SubmitButton className="shrink-0">Ajouter</SubmitButton>
+            <form action={createTrade} className="space-y-2">
+              <div className="flex gap-2">
+                <Input
+                  name="name"
+                  type="text"
+                  required
+                  placeholder="Maçon, Ferrailleur..."
+                  className="flex-1"
+                />
+                <Input
+                  name="dailyRate"
+                  type="number"
+                  min="0"
+                  step="1"
+                  required
+                  placeholder="FCFA/j"
+                  className="w-28"
+                />
+              </div>
+              <SubmitButton className="w-full">Ajouter</SubmitButton>
             </form>
           </div>
         </CardContent>

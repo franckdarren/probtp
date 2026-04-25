@@ -86,7 +86,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       </div>
 
       {/* KPIs budget */}
-      <div className="grid grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <Card>
           <CardContent className="p-3 text-center">
             <p className="text-xs text-muted-foreground">Budget</p>
@@ -127,34 +127,34 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 {expensesBudget > 0 && (
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-purple-500 shrink-0" />
-                    <span className="text-xs text-muted-foreground w-32 shrink-0">Dépenses chantier</span>
+                    <span className="text-xs text-muted-foreground shrink-0 w-24 sm:w-32">Dépenses chantier</span>
                     <Progress
                       value={Math.round((expensesBudget / actualExpenses) * 100)}
                       className="flex-1 h-1.5 bg-purple-500"
                     />
-                    <span className="text-xs text-muted-foreground w-20 text-right shrink-0">{formatFcfa(expensesBudget)}</span>
+                    <span className="text-xs text-muted-foreground text-right shrink-0 w-16 sm:w-20">{formatFcfa(expensesBudget)}</span>
                   </div>
                 )}
                 {expensesLabor > 0 && (
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-primary shrink-0" />
-                    <span className="text-xs text-muted-foreground w-32 shrink-0">Main-d&apos;œuvre</span>
+                    <span className="text-xs text-muted-foreground shrink-0 w-24 sm:w-32">Main-d&apos;œuvre</span>
                     <Progress
                       value={Math.round((expensesLabor / actualExpenses) * 100)}
                       className="flex-1 h-1.5"
                     />
-                    <span className="text-xs text-muted-foreground w-20 text-right shrink-0">{formatFcfa(expensesLabor)}</span>
+                    <span className="text-xs text-muted-foreground text-right shrink-0 w-16 sm:w-20">{formatFcfa(expensesLabor)}</span>
                   </div>
                 )}
                 {expensesMaterials > 0 && (
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
-                    <span className="text-xs text-muted-foreground w-32 shrink-0">Matériaux</span>
+                    <span className="text-xs text-muted-foreground shrink-0 w-24 sm:w-32">Matériaux</span>
                     <Progress
                       value={Math.round((expensesMaterials / actualExpenses) * 100)}
                       className="flex-1 h-1.5 bg-amber-500"
                     />
-                    <span className="text-xs text-muted-foreground w-20 text-right shrink-0">{formatFcfa(expensesMaterials)}</span>
+                    <span className="text-xs text-muted-foreground text-right shrink-0 w-16 sm:w-20">{formatFcfa(expensesMaterials)}</span>
                   </div>
                 )}
               </div>
@@ -177,7 +177,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <Input id="name" name="name" type="text" required defaultValue={project.name} />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="status">Statut</Label>
                 <Select name="status" defaultValue={project.status}>
@@ -213,7 +213,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="startDate">Début</Label>
                 <Input id="startDate" name="startDate" type="date" defaultValue={toDateInput(project.startDate)} />

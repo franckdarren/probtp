@@ -84,7 +84,7 @@ export default async function LaborPage() {
           </CardHeader>
           <CardContent>
             <form action={createLaborEntry} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="projectId">Chantier</Label>
                   <Select name="projectId" required>
@@ -114,7 +114,7 @@ export default async function LaborPage() {
                   </Select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="workerId">Ouvrier</Label>
                   <Input id="workerId" name="workerId" type="text" required placeholder="Nom ou ID" />

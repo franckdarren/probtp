@@ -27,6 +27,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from '@/components/ui/sidebar'
 import {
   DropdownMenu,
@@ -55,6 +56,12 @@ export function AppSidebar({ companyName, userEmail }: AppSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { pendingHref, startNavigation } = useNavigation()
+  const { isMobile, setOpenMobile } = useSidebar()
+
+  const handleLinkClick = (href: string) => {
+    startNavigation(href)
+    if (isMobile) setOpenMobile(false)
+  }
 
   const handleSignOut = async () => {
     const supabase = createClient()
@@ -81,7 +88,7 @@ export function AppSidebar({ companyName, userEmail }: AppSidebarProps) {
                   <BTPIcon className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">BTP Pilote</span>
+                  <span className="truncate font-semibold">ProBTP</span>
                   <span className="truncate text-xs text-muted-foreground">{companyName}</span>
                 </div>
               </Link>
@@ -105,7 +112,7 @@ export function AppSidebar({ companyName, userEmail }: AppSidebarProps) {
                       tooltip={label}
                       className="data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
                     >
-                      <Link href={href} onClick={() => startNavigation(href)}>
+                      <Link href={href} onClick={() => handleLinkClick(href)}>
                         <Icon />
                         <span>{label}</span>
                       </Link>
@@ -127,7 +134,7 @@ export function AppSidebar({ companyName, userEmail }: AppSidebarProps) {
                   tooltip="Paramètres"
                   className="data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
                 >
-                  <Link href="/settings" onClick={() => startNavigation('/settings')}>
+                  <Link href="/settings" onClick={() => handleLinkClick('/settings')}>
                     <Settings />
                     <span>Paramètres</span>
                   </Link>

@@ -63,7 +63,7 @@ export default async function BudgetPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="label">Libellé</Label>
                 <Input id="label" name="label" type="text" required placeholder="Béton, Ferraillage..." />

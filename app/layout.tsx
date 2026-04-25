@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BTP Pilote — Gestion de chantiers",
+  title: "ProBTP",
   description: "Application de gestion et pilotage de chantiers BTP",
 };
 
