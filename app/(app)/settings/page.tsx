@@ -6,6 +6,7 @@ import { updateCompany, createTrade, deleteTrade } from './actions'
 import { DeleteConfirmModal } from '@/components/shared/delete-confirm-modal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/components/ui/submit-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
@@ -99,7 +100,7 @@ export default async function SettingsPage() {
               </p>
             </div>
 
-            <Button type="submit" className="w-full">Enregistrer</Button>
+            <SubmitButton className="w-full">Enregistrer</SubmitButton>
           </form>
         </CardContent>
       </Card>
@@ -148,7 +149,7 @@ export default async function SettingsPage() {
                 placeholder="FCFA/j"
                 className="w-28"
               />
-              <Button type="submit" className="shrink-0">Ajouter</Button>
+              <SubmitButton className="shrink-0">Ajouter</SubmitButton>
             </form>
           </div>
         </CardContent>

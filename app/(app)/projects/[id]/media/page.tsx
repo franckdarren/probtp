@@ -31,16 +31,16 @@ export default async function MediaPage({ params }: { params: Promise<{ id: stri
   const uploadAction = uploadImage.bind(null, id)
 
   return (
-    <main className="p-4 md:p-6 max-w-2xl mx-auto">
-      <div className="flex items-center gap-3 mb-6">
-        <Link href={`/projects/${id}`} className="text-gray-500 hover:text-gray-700">
-          <ArrowLeft size={20} />
-        </Link>
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">Photos</h1>
-          <p className="text-sm text-gray-500">{project.name}</p>
-        </div>
+    <main className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          Photos du chantier
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {project.name}
+        </p>
       </div>
+      
 
       {/* Upload */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-6">

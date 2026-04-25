@@ -6,6 +6,7 @@ import { createMaterial, deleteMaterial, createMaterialEntry, deleteMaterialEntr
 import { DeleteConfirmModal } from '@/components/shared/delete-confirm-modal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/components/ui/submit-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -132,7 +133,7 @@ export default async function MaterialsPage() {
                   />
                 </div>
               </div>
-              <Button type="submit" className="w-full">Enregistrer</Button>
+              <SubmitButton className="w-full">Enregistrer</SubmitButton>
             </form>
           </CardContent>
         </Card>
@@ -231,7 +232,7 @@ export default async function MaterialsPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button type="submit" className="shrink-0">Ajouter</Button>
+                <SubmitButton className="shrink-0">Ajouter</SubmitButton>
               </div>
             </form>
           </div>

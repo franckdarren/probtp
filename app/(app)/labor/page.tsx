@@ -7,6 +7,7 @@ import { DeleteConfirmModal } from '@/components/shared/delete-confirm-modal'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/components/ui/submit-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -132,7 +133,7 @@ export default async function LaborPage() {
                   defaultValue={new Date().toISOString().split('T')[0]}
                 />
               </div>
-              <Button type="submit" className="w-full">Enregistrer</Button>
+              <SubmitButton className="w-full">Enregistrer</SubmitButton>
             </form>
           </CardContent>
         </Card>

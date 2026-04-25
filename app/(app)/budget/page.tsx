@@ -6,6 +6,7 @@ import { createBudgetItem, deleteBudgetItem } from './actions'
 import { DeleteConfirmModal } from '@/components/shared/delete-confirm-modal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/components/ui/submit-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -72,7 +73,7 @@ export default async function BudgetPage() {
                 <Input id="amount" name="amount" type="number" min="0" step="1" required placeholder="0" />
               </div>
             </div>
-            <Button type="submit" className="w-full">Ajouter</Button>
+            <SubmitButton className="w-full">Ajouter</SubmitButton>
           </form>
         </CardContent>
       </Card>

@@ -2,6 +2,7 @@
 
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/components/ui/submit-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -64,9 +65,9 @@ export function NewProjectModal({ label = 'Nouveau', variant = 'default' }: {
             </div>
           </div>
 
-          <Button type="submit" className="w-full">
+          <SubmitButton className="w-full">
             Créer le chantier
-          </Button>
+          </SubmitButton>
         </form>
       </DialogContent>
     </Dialog>

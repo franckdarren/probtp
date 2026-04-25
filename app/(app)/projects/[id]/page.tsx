@@ -2,12 +2,13 @@ import { db } from '@/lib/db'
 import { projects } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
 import { Camera, FileDown, FileSpreadsheet, Pencil } from 'lucide-react'
 import { DeleteConfirmModal } from '@/components/shared/delete-confirm-modal'
+import { LoadingLinkButton } from '@/components/ui/loading-link-button'
 import { updateProject, deleteProject } from '../actions'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/components/ui/submit-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -215,32 +216,26 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               </div>
             </div>
 
-            <Button type="submit" className="w-full">Enregistrer</Button>
+            <SubmitButton className="w-full">Enregistrer</SubmitButton>
           </form>
         </CardContent>
       </Card>
 
       {/* Export */}
       <div className="grid grid-cols-2 gap-3 mb-3">
-        <Button variant="outline" asChild className="gap-2">
-          <a href={`/projects/${id}/export?format=pdf`}>
-            <FileDown size={16} /> PDF
-          </a>
-        </Button>
-        <Button variant="outline" asChild className="gap-2">
-          <a href={`/projects/${id}/export?format=excel`}>
-            <FileSpreadsheet size={16} /> Excel
-          </a>
-        </Button>
+        <LoadingLinkButton variant="outline" className="gap-2" href={`/projects/${id}/export?format=pdf`} isDownload icon={<FileDown size={16} />}>
+          PDF
+        </LoadingLinkButton>
+        <LoadingLinkButton variant="outline" className="gap-2" href={`/projects/${id}/export?format=excel`} isDownload icon={<FileSpreadsheet size={16} />}>
+          Excel
+        </LoadingLinkButton>
       </div>
 
       {/* Actions */}
       <div className="grid grid-cols-2 gap-3">
-        <Button variant="outline" asChild className="gap-2">
-          <Link href={`/projects/${id}/media`}>
-            <Camera size={16} /> Photos ({project.images.length})
-          </Link>
-        </Button>
+        <LoadingLinkButton variant="outline" className="gap-2" href={`/projects/${id}/media`} icon={<Camera size={16} />}>
+          Photos ({project.images.length})
+        </LoadingLinkButton>
         <DeleteConfirmModal
           action={deleteWithId}
           triggerLabel="Supprimer"

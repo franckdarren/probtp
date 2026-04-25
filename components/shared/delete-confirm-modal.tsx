@@ -2,6 +2,7 @@
 
 import { Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/components/ui/submit-button'
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,7 @@ import {
 import { useState } from 'react'
 
 interface DeleteConfirmModalProps {
-  action: () => Promise<never>
+  action: () => Promise<unknown>
   description?: string
   triggerLabel?: string
 }
@@ -58,14 +59,10 @@ export function DeleteConfirmModal({ action, description, triggerLabel }: Delete
                 Annuler
               </Button>
             </DialogClose>
-            <form action={action} className="flex-1">
-              <Button
-                type="submit"
-                variant="destructive"
-                className="w-full text-white"
-              >
+            <form action={async () => { await action() }} className="flex-1">
+              <SubmitButton variant="destructive" className="w-full text-white">
                 Supprimer
-              </Button>
+              </SubmitButton>
             </form>
           </div>
         </DialogContent>
