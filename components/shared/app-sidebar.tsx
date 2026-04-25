@@ -78,7 +78,7 @@ export function AppSidebar({ companyName, userEmail }: AppSidebarProps) {
     .toUpperCase()
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className='w-[260px]'>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -87,7 +87,7 @@ export function AppSidebar({ companyName, userEmail }: AppSidebarProps) {
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <BTPIcon className="size-4" />
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                <div className="grid flex-1 min-w-0 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">ProBTP</span>
                   <span className="truncate text-xs text-muted-foreground">{companyName}</span>
                 </div>
@@ -159,7 +159,7 @@ export function AppSidebar({ companyName, userEmail }: AppSidebarProps) {
                       {initials}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
+                  <div className="grid flex-1 min-w-0 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">{companyName}</span>
                     <span className="truncate text-xs text-muted-foreground">{userEmail}</span>
                   </div>
@@ -179,7 +179,7 @@ export function AppSidebar({ companyName, userEmail }: AppSidebarProps) {
                         {initials}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
+                    <div className="grid flex-1 min-w-0 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">{companyName}</span>
                       <span className="truncate text-xs text-muted-foreground">{userEmail}</span>
                     </div>

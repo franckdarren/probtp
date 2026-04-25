@@ -32,7 +32,11 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider>
+            <main className="lg:ml-[260px]">
+            {children}
+            </main>
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

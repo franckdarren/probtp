@@ -43,7 +43,7 @@ export default async function AppLayout({
         <AppSidebar companyName={companyName} userEmail={user.email ?? ""} />
         <SidebarInset>
           <Topbar/>
-          <main className="flex-1 p-4 md:p-6 min-h-screen lg:ml-[260px]">
+          <main className="flex-1 p-4 md:p-6 min-h-screen">
             {children}
           </main>
         </SidebarInset>
