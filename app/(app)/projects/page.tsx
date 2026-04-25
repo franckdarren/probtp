@@ -3,8 +3,10 @@ import { db } from '@/lib/db'
 import { users, projects } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import Link from 'next/link'
-import { createProject } from './actions'
-import { Plus } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { NewProjectModal } from '@/components/shared/new-project-modal'
 
 const STATUS_LABELS: Record<string, string> = {
   'planifié': 'Planifié',
@@ -14,12 +16,12 @@ const STATUS_LABELS: Record<string, string> = {
   'annulé': 'Annulé',
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  'planifié': 'text-blue-700 bg-blue-50',
-  'en cours': 'text-emerald-700 bg-emerald-50',
-  'en pause': 'text-orange-600 bg-orange-50',
-  'terminé': 'text-gray-600 bg-gray-100',
-  'annulé': 'text-red-600 bg-red-50',
+const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  'planifié': 'outline',
+  'en cours': 'default',
+  'en pause': 'secondary',
+  'terminé': 'secondary',
+  'annulé': 'destructive',
 }
 
 function formatFcfa(amount: string | number) {
@@ -49,56 +51,60 @@ export default async function ProjectsPage() {
   })
 
   return (
-    <main className="p-4 md:p-6 max-w-3xl mx-auto">
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          Liste des chantiers
+        </h1>
+        {/* <p className="mt-1 text-sm text-muted-foreground">
+          Informations globales de votre entreprise.
+        </p> */}
+      </div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-gray-900">Chantiers</h1>
-        <Link
-          href="/projects/new"
-          className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <Plus size={16} />
-          Nouveau
-        </Link>
+        <p className="text-sm text-muted-foreground">{enriched.length} chantier{enriched.length > 1 ? 's' : ''}</p>
+        <NewProjectModal />
       </div>
 
       {enriched.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-100 p-10 text-center">
-          <p className="text-sm text-gray-400 mb-3">Aucun chantier pour le moment</p>
-          <Link
-            href="/projects/new"
-            className="text-sm text-blue-600 hover:underline font-medium"
-          >
-            Créer votre premier chantier
-          </Link>
-        </div>
+        <Card>
+          <CardContent className="py-16 text-center">
+            <p className="text-sm text-muted-foreground mb-3">Aucun chantier pour le moment</p>
+            <NewProjectModal label="Créer votre premier chantier" variant="outline" />
+          </CardContent>
+        </Card>
       ) : (
         <div className="space-y-2">
           {enriched.map((p) => (
-            <Link
-              key={p.id}
-              href={`/projects/${p.id}`}
-              className="flex items-center bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">{p.name}</p>
-                <div className="flex items-center gap-3 mt-0.5">
-                  <p className="text-xs text-gray-500">
-                    {formatFcfa(p.actualExpenses)} / {formatFcfa(p.budgetAdjusted)}
-                  </p>
-                  {p.startDate && (
-                    <p className="text-xs text-gray-400">
-                      {new Date(p.startDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <span className={`ml-3 shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full ${STATUS_COLORS[p.status]}`}>
-                {STATUS_LABELS[p.status]}
-              </span>
-            </Link>
+            <Card key={p.id} className="hover:bg-muted/30 transition-colors cursor-pointer">
+              <Link href={`/projects/${p.id}`} className="block">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate">{p.name}</p>
+                      <div className="flex items-center gap-3 mt-1">
+                        <p className="text-xs text-muted-foreground">
+                          {formatFcfa(p.actualExpenses)} / {formatFcfa(p.budgetAdjusted)}
+                        </p>
+                        {p.startDate && (
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(p.startDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Badge variant={STATUS_VARIANTS[p.status]} className="text-[10px]">
+                        {STATUS_LABELS[p.status]}
+                      </Badge>
+                      <ChevronRight size={14} className="text-muted-foreground" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Link>
+            </Card>
           ))}
         </div>
       )}
-    </main>
+    </div>
   )
 }

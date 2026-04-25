@@ -2,8 +2,15 @@ import { createClient } from '@/lib/supabase/server'
 import { db } from '@/lib/db'
 import { users, projects, materials, materialEntries } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { Trash2 } from 'lucide-react'
 import { createMaterial, deleteMaterial, createMaterialEntry, deleteMaterialEntry } from './actions'
+import { DeleteConfirmModal } from '@/components/shared/delete-confirm-modal'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertTriangle } from 'lucide-react'
 
 function formatFcfa(amount: string | number) {
   return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(Number(amount)) + ' FCFA'
@@ -42,10 +49,8 @@ export default async function MaterialsPage() {
 
   const companyProjectIds = new Set(companyProjects.map((p) => p.id))
   const entries = allEntries.filter((e) => companyProjectIds.has(e.projectId))
-
   const totalCost = entries.reduce((s, e) => s + parseFloat(e.cost), 0)
 
-  // Grouper les saisies par chantier
   const entriesByProject = companyProjects
     .map((p) => {
       const projectEntries = entries.filter((e) => e.projectId === p.id)
@@ -55,199 +60,183 @@ export default async function MaterialsPage() {
     .filter((g) => g.entries.length > 0)
 
   return (
-    <main className="p-4 md:p-6 max-w-3xl mx-auto">
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          Gestion des matériaux
+        </h1>
+        {/* <p className="mt-1 text-sm text-muted-foreground">
+          Informations globales de votre entreprise.
+        </p> */}
+      </div>
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-900">Matériaux</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Coût total : {formatFcfa(totalCost)}</p>
+        <p className="text-sm text-muted-foreground">Coût total : {formatFcfa(totalCost)}</p>
       </div>
 
       {companyMaterials.length === 0 ? (
-        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-6 text-sm text-orange-700">
-          Aucun matériau dans le catalogue. Créez votre premier matériau ci-dessous pour commencer la saisie.
-        </div>
+        <Alert className="mb-6 border-orange-200 bg-orange-50 text-orange-800">
+          <AlertTriangle size={16} className="text-orange-600" />
+          <AlertDescription>
+            Aucun matériau dans le catalogue. Créez votre premier matériau ci-dessous pour commencer la saisie.
+          </AlertDescription>
+        </Alert>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-6">
-          <h2 className="text-sm font-semibold text-gray-800 mb-3">Saisir un achat</h2>
-          <form action={createMaterialEntry} className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Chantier</label>
-                <select
-                  name="projectId"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                >
-                  <option value="">Chantier...</option>
-                  {activeProjects.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </select>
+        <Card className="mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold">Saisir un achat</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form action={createMaterialEntry} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="projectId">Chantier</Label>
+                  <Select name="projectId" required>
+                    <SelectTrigger id="projectId">
+                      <SelectValue placeholder="Chantier..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {activeProjects.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="materialId">Matériau</Label>
+                  <Select name="materialId" required>
+                    <SelectTrigger id="materialId">
+                      <SelectValue placeholder="Matériau..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {companyMaterials.map((m) => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.name} ({formatFcfa(m.unitPrice)}/{m.unit})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Matériau</label>
-                <select
-                  name="materialId"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                >
-                  <option value="">Matériau...</option>
-                  {companyMaterials.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name} ({formatFcfa(m.unitPrice)}/{m.unit})
-                    </option>
-                  ))}
-                </select>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="quantity">Quantité</Label>
+                  <Input id="quantity" name="quantity" type="number" min="0.01" step="0.01" required placeholder="10" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="date">Date</Label>
+                  <Input
+                    id="date"
+                    name="date"
+                    type="date"
+                    defaultValue={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Quantité</label>
-                <input
-                  name="quantity"
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="10"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
-                <input
-                  name="date"
-                  type="date"
-                  defaultValue={new Date().toISOString().split('T')[0]}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            <button
-              type="submit"
-              className="w-full py-2 px-4 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Enregistrer
-            </button>
-          </form>
-        </div>
+              <Button type="submit" className="w-full">Enregistrer</Button>
+            </form>
+          </CardContent>
+        </Card>
       )}
 
       {/* Historique par chantier */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mb-6">
-        <div className="px-4 py-3 border-b border-gray-50">
-          <h2 className="text-sm font-semibold text-gray-800">Historique par chantier</h2>
-        </div>
-        {entriesByProject.length === 0 ? (
-          <p className="px-4 py-6 text-xs text-gray-400 text-center">Aucune saisie</p>
-        ) : (
-          <div className="divide-y divide-gray-100">
-            {entriesByProject.map(({ project, entries: projectEntries, total }) => (
-              <div key={project.id}>
-                <div className="px-4 py-2.5 bg-gray-50 flex items-center justify-between">
-                  <p className="text-xs font-semibold text-gray-700">{project.name}</p>
-                  <p className="text-xs font-semibold text-gray-900">{formatFcfa(total)}</p>
-                </div>
-                <div className="divide-y divide-gray-50">
-                  {projectEntries.map((e) => {
-                    const deleteAction = deleteMaterialEntry.bind(null, e.id, e.projectId)
-                    return (
-                      <div key={e.id} className="flex items-center px-4 py-3">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{e.material.name}</p>
-                          <p className="text-xs text-gray-500">
-                            {e.quantity} {e.material.unit} × {formatFcfa(e.unitPrice)}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            {new Date(e.date).toLocaleDateString('fr-FR')}
-                          </p>
+      <Card className="mb-6">
+        <CardHeader className="py-3 px-4 border-b">
+          <CardTitle className="text-sm font-semibold">Historique par chantier</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          {entriesByProject.length === 0 ? (
+            <p className="px-4 py-8 text-xs text-muted-foreground text-center">Aucune saisie</p>
+          ) : (
+            <div className="divide-y">
+              {entriesByProject.map(({ project, entries: projectEntries, total }) => (
+                <div key={project.id}>
+                  <div className="px-4 py-2.5 bg-muted/50 flex items-center justify-between">
+                    <p className="text-xs font-semibold">{project.name}</p>
+                    <p className="text-xs font-semibold">{formatFcfa(total)}</p>
+                  </div>
+                  <div className="divide-y">
+                    {projectEntries.map((e) => {
+                      const deleteAction = deleteMaterialEntry.bind(null, e.id, e.projectId)
+                      return (
+                        <div key={e.id} className="flex items-center px-4 py-3">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{e.material.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {e.quantity} {e.material.unit} × {formatFcfa(e.unitPrice)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(e.date).toLocaleDateString('fr-FR')}
+                            </p>
+                          </div>
+                          <p className="text-sm font-semibold mr-3">{formatFcfa(e.cost)}</p>
+                          <DeleteConfirmModal action={deleteAction} description="Cet achat matériau sera définitivement supprimé." />
                         </div>
-                        <p className="text-sm font-semibold text-gray-900 mr-3">
-                          {formatFcfa(e.cost)}
-                        </p>
-                        <form action={deleteAction}>
-                          <button type="submit" className="text-gray-400 hover:text-red-500 transition-colors">
-                            <Trash2 size={14} />
-                          </button>
-                        </form>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Catalogue */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-50">
-          <h2 className="text-sm font-semibold text-gray-800">Catalogue matériaux</h2>
-          <p className="text-xs text-gray-400 mt-0.5">Prix unitaires de référence</p>
-        </div>
-
-        {companyMaterials.length > 0 && (
-          <div className="divide-y divide-gray-50">
-            {companyMaterials.map((m) => {
-              const deleteAction = deleteMaterial.bind(null, m.id)
-              return (
-                <div key={m.id} className="flex items-center px-4 py-3">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">{m.name}</p>
-                    <p className="text-xs text-gray-400">{formatFcfa(m.unitPrice)} / {m.unit}</p>
-                  </div>
-                  <form action={deleteAction}>
-                    <button type="submit" className="text-gray-400 hover:text-red-500 transition-colors">
-                      <Trash2 size={14} />
-                    </button>
-                  </form>
-                </div>
-              )
-            })}
+      <Card>
+        <CardHeader className="py-3 px-4 border-b">
+          <div>
+            <CardTitle className="text-sm font-semibold">Catalogue matériaux</CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">Prix unitaires de référence</p>
           </div>
-        )}
-
-        <div className="px-4 py-3 border-t border-gray-50">
-          <form action={createMaterial} className="space-y-2">
-            <div className="flex gap-2">
-              <input
-                name="name"
-                type="text"
-                required
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Ciment, Sable, Fer..."
-              />
-              <input
-                name="unitPrice"
-                type="number"
-                min="0"
-                step="1"
-                required
-                className="w-28 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Prix (FCFA)"
-              />
+        </CardHeader>
+        <CardContent className="p-0">
+          {companyMaterials.length > 0 && (
+            <div className="divide-y">
+              {companyMaterials.map((m) => {
+                const deleteAction = deleteMaterial.bind(null, m.id)
+                return (
+                  <div key={m.id} className="flex items-center px-4 py-3">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{m.name}</p>
+                      <p className="text-xs text-muted-foreground">{formatFcfa(m.unitPrice)} / {m.unit}</p>
+                    </div>
+                    <DeleteConfirmModal action={deleteAction} description="Ce matériau et toutes ses saisies seront définitivement supprimés." />
+                  </div>
+                )
+              })}
             </div>
-            <div className="flex gap-2">
-              <select
-                name="unit"
-                required
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              >
-                <option value="">Unité...</option>
-                {UNITS.map((u) => (
-                  <option key={u} value={u}>{u}</option>
-                ))}
-              </select>
-              <button
-                type="submit"
-                className="px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shrink-0"
-              >
-                Ajouter
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </main>
+          )}
+          <div className="px-4 py-4 border-t">
+            <form action={createMaterial} className="space-y-3">
+              <div className="flex gap-2">
+                <Input name="name" type="text" required placeholder="Ciment, Sable, Fer..." className="flex-1" />
+                <Input
+                  name="unitPrice"
+                  type="number"
+                  min="0"
+                  step="1"
+                  required
+                  placeholder="Prix FCFA"
+                  className="w-28"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Select name="unit" required>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Unité..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {UNITS.map((u) => (
+                      <SelectItem key={u} value={u}>{u}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button type="submit" className="shrink-0">Ajouter</Button>
+              </div>
+            </form>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

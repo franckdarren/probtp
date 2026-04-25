@@ -5,11 +5,16 @@ import { eq } from 'drizzle-orm'
 import Link from 'next/link'
 import { BudgetChart } from '@/components/shared/budget-chart'
 import { ExpensesBreakdownChart } from '@/components/shared/expenses-breakdown-chart'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import { Button } from '@/components/ui/button'
+import { TrendingUp, Building2, Banknote, Scale, ArrowRight } from 'lucide-react'
 
 function getBudgetStatus(consumptionRate: number, budgetThreshold: number) {
-  if (consumptionRate >= budgetThreshold) return { label: 'Dépassé', color: 'text-red-600 bg-red-50', bar: 'bg-red-500' }
-  if (consumptionRate >= 0.80) return { label: 'Alerte', color: 'text-orange-600 bg-orange-50', bar: 'bg-orange-400' }
-  return { label: 'OK', color: 'text-green-700 bg-green-50', bar: 'bg-emerald-500' }
+  if (consumptionRate >= budgetThreshold) return { label: 'Dépassé', variant: 'destructive' as const, bar: 'bg-destructive' }
+  if (consumptionRate >= 0.80) return { label: 'Alerte', variant: 'warning' as const, bar: 'bg-orange-400' }
+  return { label: 'OK', variant: 'success' as const, bar: 'bg-emerald-500' }
 }
 
 function formatFcfa(amount: number) {
@@ -24,12 +29,12 @@ const STATUS_LABELS: Record<string, string> = {
   'annulé': 'Annulé',
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  'planifié': 'text-blue-700 bg-blue-50',
-  'en cours': 'text-emerald-700 bg-emerald-50',
-  'en pause': 'text-orange-600 bg-orange-50',
-  'terminé': 'text-gray-600 bg-gray-100',
-  'annulé': 'text-red-600 bg-red-50',
+const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  'planifié': 'outline',
+  'en cours': 'default',
+  'en pause': 'secondary',
+  'terminé': 'secondary',
+  'annulé': 'destructive',
 }
 
 function truncate(s: string, n: number) {
@@ -83,164 +88,210 @@ export default async function DashboardPage() {
     depenses: Math.round(p.actualExpenses),
   }))
 
-  return (
-    <main className="p-4 md:p-6 max-w-5xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-900">Tableau de bord</h1>
-        <p className="text-sm text-gray-500 mt-0.5">{dbUser?.company?.name}</p>
-      </div>
+  const consumptionPct = totalBudget > 0 ? Math.round((totalExpenses / totalBudget) * 100) : 0
 
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          Tableau de bord
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Informations globales de votre entreprise.
+        </p>
+      </div>
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-          <p className="text-xs text-gray-500 mb-1">Chantiers actifs</p>
-          <p className="text-2xl font-bold text-gray-900">{activeProjects.length}</p>
-          <p className="text-xs text-gray-400 mt-0.5">sur {enriched.length} total</p>
-        </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Chantiers actifs</p>
+                <p className="text-2xl font-bold mt-1">{activeProjects.length}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">sur {enriched.length} total</p>
+              </div>
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Building2 size={16} className="text-primary" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-          <p className="text-xs text-gray-500 mb-1">Budget total</p>
-          <p className="text-lg font-bold text-gray-900 leading-tight">{formatFcfa(totalBudget)}</p>
-          <p className="text-xs text-gray-400 mt-0.5">ajusté</p>
-        </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Budget total</p>
+                <p className="text-base font-bold mt-1 leading-tight">{formatFcfa(totalBudget)}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">ajusté</p>
+              </div>
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Banknote size={16} className="text-primary" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-          <p className="text-xs text-gray-500 mb-1">Dépenses totales</p>
-          <p className="text-lg font-bold text-gray-900 leading-tight">{formatFcfa(totalExpenses)}</p>
-          <p className="text-xs text-gray-400 mt-0.5">
-            {totalBudget > 0 ? Math.round((totalExpenses / totalBudget) * 100) : 0}% consommé
-          </p>
-        </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Dépenses totales</p>
+                <p className="text-base font-bold mt-1 leading-tight">{formatFcfa(totalExpenses)}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{consumptionPct}% consommé</p>
+              </div>
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <TrendingUp size={16} className="text-orange-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-          <p className="text-xs text-gray-500 mb-1">Solde</p>
-          <p className={`text-lg font-bold leading-tight ${totalDifference >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-            {totalDifference >= 0 ? '+' : ''}{formatFcfa(totalDifference)}
-          </p>
-          <p className="text-xs text-gray-400 mt-0.5">budget - dépenses</p>
-        </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Solde</p>
+                <p className={`text-base font-bold mt-1 leading-tight ${totalDifference >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
+                  {totalDifference >= 0 ? '+' : ''}{formatFcfa(totalDifference)}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">budget − dépenses</p>
+              </div>
+              <div className={`p-2 rounded-lg ${totalDifference >= 0 ? 'bg-emerald-100' : 'bg-destructive/10'}`}>
+                <Scale size={16} className={totalDifference >= 0 ? 'text-emerald-600' : 'text-destructive'} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Graphiques */}
       {enriched.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-            <h2 className="text-sm font-semibold text-gray-800 mb-3">Budget vs Dépenses</h2>
-            <BudgetChart data={chartData} />
-          </div>
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-            <h2 className="text-sm font-semibold text-gray-800 mb-3">Répartition des dépenses</h2>
-            <ExpensesBreakdownChart
-              laborTotal={totalLaborCost}
-              budgetItemsTotal={totalBudgetItemsCost}
-              materialsTotal={totalMaterialsCost}
-            />
-          </div>
+          <Card>
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm font-semibold">Budget vs Dépenses</CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <BudgetChart data={chartData} />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm font-semibold">Répartition des dépenses</CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <ExpensesBreakdownChart
+                laborTotal={totalLaborCost}
+                budgetItemsTotal={totalBudgetItemsCost}
+                materialsTotal={totalMaterialsCost}
+              />
+            </CardContent>
+          </Card>
         </div>
       )}
 
-      {/* Table chantiers actifs */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-          <h2 className="text-sm font-semibold text-gray-800">Chantiers actifs</h2>
-          <Link
-            href="/projects"
-            className="text-xs text-blue-600 hover:underline font-medium"
-          >
-            Voir tout
-          </Link>
-        </div>
-
-        {activeProjects.length === 0 ? (
-          <div className="px-4 py-10 text-center">
-            <p className="text-sm text-gray-400">Aucun chantier en cours</p>
-            <Link
-              href="/projects"
-              className="mt-3 inline-block text-sm text-blue-600 hover:underline font-medium"
-            >
-              Créer un chantier
-            </Link>
+      {/* Chantiers actifs */}
+      <Card className="mb-4">
+        <CardHeader className="py-3 px-4 border-b">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm font-semibold">Chantiers actifs</CardTitle>
+            <Button variant="ghost" size="sm" asChild className="h-7 text-xs gap-1">
+              <Link href="/projects">
+                Voir tout <ArrowRight size={12} />
+              </Link>
+            </Button>
           </div>
-        ) : (
-          <div className="divide-y divide-gray-50">
-            {activeProjects.map((p) => {
-              const status = getBudgetStatus(p.consumptionRate, budgetThreshold)
-              const pct = Math.min(Math.round(p.consumptionRate * 100), 100)
-              return (
-                <Link
-                  key={p.id}
-                  href={`/projects/${p.id}`}
-                  className="block px-4 py-3 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-center">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{p.name}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        {formatFcfa(p.actualExpenses)} / {formatFcfa(p.budgetAdjusted)}
-                      </p>
-                    </div>
-                    <div className="ml-3 flex flex-col items-end gap-1">
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${status.color}`}>
-                        {status.label}
-                      </span>
-                      <span className="text-xs text-gray-400">{pct}%</span>
-                    </div>
-                  </div>
-                  {/* Barre de progression */}
-                  <div className="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all ${status.bar}`}
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Autres chantiers */}
-      {enriched.filter((p) => p.status !== 'en cours').length > 0 && (
-        <div className="mt-6 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100">
-            <h2 className="text-sm font-semibold text-gray-800">Autres chantiers</h2>
-          </div>
-          <div className="divide-y divide-gray-50">
-            {enriched
-              .filter((p) => p.status !== 'en cours')
-              .map((p) => {
-                const pct = Math.min(Math.round(p.consumptionRate * 100), 100)
+        </CardHeader>
+        <CardContent className="p-0">
+          {activeProjects.length === 0 ? (
+            <div className="px-4 py-10 text-center">
+              <p className="text-sm text-muted-foreground">Aucun chantier en cours</p>
+              <Button variant="link" size="sm" asChild className="mt-2">
+                <Link href="/projects">Créer un chantier</Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="divide-y">
+              {activeProjects.map((p) => {
                 const status = getBudgetStatus(p.consumptionRate, budgetThreshold)
+                const pct = Math.min(Math.round(p.consumptionRate * 100), 100)
                 return (
                   <Link
                     key={p.id}
                     href={`/projects/${p.id}`}
-                    className="block px-4 py-3 hover:bg-gray-50 transition-colors"
+                    className="block px-4 py-3 hover:bg-muted/50 transition-colors"
                   >
-                    <div className="flex items-center">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{p.name}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex-1 min-w-0 mr-3">
+                        <p className="text-sm font-medium truncate">{p.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           {formatFcfa(p.actualExpenses)} / {formatFcfa(p.budgetAdjusted)}
                         </p>
                       </div>
-                      <span className={`ml-3 text-[10px] font-semibold px-2 py-0.5 rounded-full ${STATUS_COLORS[p.status]}`}>
-                        {STATUS_LABELS[p.status]}
-                      </span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Badge
+                          variant={status.variant === 'warning' ? 'outline' : status.variant === 'success' ? 'outline' : 'destructive'}
+                          className={
+                            status.variant === 'success'
+                              ? 'border-emerald-500 text-emerald-700 bg-emerald-50 text-[10px]'
+                              : status.variant === 'warning'
+                              ? 'border-orange-400 text-orange-700 bg-orange-50 text-[10px]'
+                              : 'text-[10px]'
+                          }
+                        >
+                          {status.label}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground w-8 text-right">{pct}%</span>
+                      </div>
                     </div>
-                    <div className="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${status.bar}`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
+                    <Progress value={pct} className={`h-1.5 ${status.bar}`} />
                   </Link>
                 )
               })}
-          </div>
-        </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Autres chantiers */}
+      {enriched.filter((p) => p.status !== 'en cours').length > 0 && (
+        <Card>
+          <CardHeader className="py-3 px-4 border-b">
+            <CardTitle className="text-sm font-semibold">Autres chantiers</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y">
+              {enriched
+                .filter((p) => p.status !== 'en cours')
+                .map((p) => {
+                  const pct = Math.min(Math.round(p.consumptionRate * 100), 100)
+                  const status = getBudgetStatus(p.consumptionRate, budgetThreshold)
+                  return (
+                    <Link
+                      key={p.id}
+                      href={`/projects/${p.id}`}
+                      className="block px-4 py-3 hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex-1 min-w-0 mr-3">
+                          <p className="text-sm font-medium truncate">{p.name}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {formatFcfa(p.actualExpenses)} / {formatFcfa(p.budgetAdjusted)}
+                          </p>
+                        </div>
+                        <Badge variant={STATUS_VARIANTS[p.status]} className="text-[10px] shrink-0">
+                          {STATUS_LABELS[p.status]}
+                        </Badge>
+                      </div>
+                      <Progress value={pct} className={`h-1.5 ${status.bar}`} />
+                    </Link>
+                  )
+                })}
+            </div>
+          </CardContent>
+        </Card>
       )}
-    </main>
+    </div>
   )
 }
