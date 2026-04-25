@@ -33,6 +33,13 @@ export default async function MediaPage({ params }: { params: Promise<{ id: stri
   return (
     <main className="space-y-6">
       <div>
+        <Link
+          href={`/projects/${id}`}
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3"
+        >
+          <ArrowLeft size={16} />
+          Retour au chantier
+        </Link>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
           Photos du chantier
         </h1>

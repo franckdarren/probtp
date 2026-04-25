@@ -2,7 +2,8 @@ import { db } from '@/lib/db'
 import { projects } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
-import { Camera, FileDown, FileSpreadsheet, Pencil } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowLeft, Camera, FileDown, FileSpreadsheet, Pencil } from 'lucide-react'
 import { DeleteConfirmModal } from '@/components/shared/delete-confirm-modal'
 import { LoadingLinkButton } from '@/components/ui/loading-link-button'
 import { updateProject, deleteProject } from '../actions'
@@ -69,6 +70,13 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="space-y-6">
       <div>
+        <Link
+          href="/projects"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3"
+        >
+          <ArrowLeft size={16} />
+          Retour aux chantiers
+        </Link>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
           Détails du chantier
         </h1>
