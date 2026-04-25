@@ -6,6 +6,8 @@ import { eq } from "drizzle-orm";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/shared/app-sidebar";
 import { Topbar } from "@/components/ui/topbar";
+import { NavigationProvider } from "@/lib/navigation-context";
+import { NavigationProgress } from "@/components/shared/navigation-progress";
 
 export default async function AppLayout({
   children,
@@ -33,15 +35,17 @@ export default async function AppLayout({
   const companyName = dbUser.company?.name ?? "Mon entreprise";
 
   return (
-    <SidebarProvider>
-      <AppSidebar companyName={companyName} userEmail={user.email ?? ""} />
-      <SidebarInset>
-        <Topbar/>
-        <main className="flex-1 p-6 min-h-screen ml-[260px]">
-          {children}
-        </main>
-
-      </SidebarInset>
-    </SidebarProvider>
+    <NavigationProvider>
+      <NavigationProgress />
+      <SidebarProvider>
+        <AppSidebar companyName={companyName} userEmail={user.email ?? ""} />
+        <SidebarInset>
+          <Topbar/>
+          <main className="flex-1 p-6 min-h-screen ml-[260px]">
+            {children}
+          </main>
+        </SidebarInset>
+      </SidebarProvider>
+    </NavigationProvider>
   );
 }

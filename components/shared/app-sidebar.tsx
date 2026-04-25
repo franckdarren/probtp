@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useNavigation } from '@/lib/navigation-context'
 import {
   LayoutDashboard,
   FolderKanban,
@@ -53,6 +54,7 @@ type AppSidebarProps = {
 export function AppSidebar({ companyName, userEmail }: AppSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const { pendingHref, startNavigation } = useNavigation()
 
   const handleSignOut = async () => {
     const supabase = createClient()
@@ -94,11 +96,16 @@ export function AppSidebar({ companyName, userEmail }: AppSidebarProps) {
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map(({ href, label, icon: Icon }) => {
-                const active = pathname.startsWith(href)
+                const active = pendingHref ? pendingHref.startsWith(href) : pathname.startsWith(href)
                 return (
                   <SidebarMenuItem key={href}>
-                    <SidebarMenuButton asChild isActive={active} tooltip={label}>
-                      <Link href={href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={active}
+                      tooltip={label}
+                      className="data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
+                    >
+                      <Link href={href} onClick={() => startNavigation(href)}>
                         <Icon />
                         <span>{label}</span>
                       </Link>
@@ -116,10 +123,11 @@ export function AppSidebar({ companyName, userEmail }: AppSidebarProps) {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname.startsWith('/settings')}
+                  isActive={pendingHref ? pendingHref.startsWith('/settings') : pathname.startsWith('/settings')}
                   tooltip="Paramètres"
+                  className="data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
                 >
-                  <Link href="/settings">
+                  <Link href="/settings" onClick={() => startNavigation('/settings')}>
                     <Settings />
                     <span>Paramètres</span>
                   </Link>
